@@ -1,9 +1,10 @@
-﻿using Mono.Cecil;
+﻿using Microsoft.Build.Utilities;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -122,15 +123,19 @@ namespace ReportPortal.Extensions.Insider.Task
                                         var retInstruction = processor.Create(OpCodes.Ret);
                                         processor.Append(retInstruction);
 
-                                        var i_interceptor_type = module.ImportReference(typeof(Interception.IInterceptor));
+
+
+                                        // Interception.IInterceptor rp_intercepter = new Interception.MethodInterceptor();
+
+                                        var interceptorTypeDefinition = module.ImportReference(typeof(Interception.MethodInterceptor)).Resolve();
+                                        var i_interceptor_type = module.ImportReference(typeof(Interception.IInterceptor)).Resolve();
 
                                         var beforeInstructions = new List<Instruction>();
 
-                                        var varDef = new VariableDefinition(i_interceptor_type);
+                                        var varDef = new VariableDefinition(module.ImportReference(i_interceptor_type));
                                         processor.Body.Variables.Add(varDef);
 
-                                        // Interception.IInterceptor rp_intercepter = new Interception.MethodInterceptor();
-                                        beforeInstructions.Add(processor.Create(OpCodes.Newobj, method.Module.ImportReference(typeof(Interception.MethodInterceptor).GetConstructor(new Type[] { }))));
+                                        beforeInstructions.Add(processor.Create(OpCodes.Newobj, module.ImportReference(interceptorTypeDefinition.GetConstructors().First())));
                                         beforeInstructions.Add(processor.Create(OpCodes.Stloc, varDef));
                                         // rp_intercepter.OnBefore();
                                         beforeInstructions.Add(processor.Create(OpCodes.Ldloc, varDef));
@@ -138,31 +143,39 @@ namespace ReportPortal.Extensions.Insider.Task
                                         // array of method arguments
                                         if (method.HasParameters)
                                         {
-                                            var methodParamsVarDefinition = new VariableDefinition(method.Module.ImportReference(typeof(OrderedDictionary)));
-                                            method.Body.Variables.Add(methodParamsVarDefinition);
-                                            beforeInstructions.Add(processor.Create(OpCodes.Newobj, method.Module.ImportReference(typeof(OrderedDictionary).GetConstructor(new Type[] { }))));
-                                            beforeInstructions.Add(processor.Create(OpCodes.Stloc, methodParamsVarDefinition));
+                                            //var dictionaryTypeDef = module.ImportReference(typeof(ParamInfo));
 
-                                            foreach (var methodParam in method.Parameters)
-                                            {
-                                                beforeInstructions.Add(processor.Create(OpCodes.Ldloc, methodParamsVarDefinition));
-                                                beforeInstructions.Add(processor.Create(OpCodes.Ldstr, methodParam.Name));
-                                                beforeInstructions.Add(processor.Create(OpCodes.Ldarg, methodParam));
-                                                if (methodParam.ParameterType.IsValueType)
-                                                {
-                                                    beforeInstructions.Add(processor.Create(OpCodes.Box, methodParam.ParameterType));
-                                                }
-                                                beforeInstructions.Add(processor.Create(OpCodes.Callvirt, method.Module.ImportReference(typeof(OrderedDictionary).GetProperty("Item", new Type[] { typeof(object) }).SetMethod)));
-                                            }
+                                            //var methodParamsVarDefinition = new VariableDefinition(dictionaryTypeDef);
+                                            //method.Body.Variables.Add(methodParamsVarDefinition);
 
-                                            beforeInstructions.Add(processor.Create(OpCodes.Ldloc, methodParamsVarDefinition));
+                                            //beforeInstructions.Add(processor.Create(OpCodes.Ldc_I4, method.Parameters.Count));
+                                            //beforeInstructions.Add(processor.Create(OpCodes.Newarr, method.Module.ImportReference(typeof(ParamInfo))));
+                                            //beforeInstructions.Add(processor.Create(OpCodes.Stloc, methodParamsVarDefinition));
+
+                                            //foreach (var methodParam in method.Parameters)
+                                            //{
+                                            //    beforeInstructions.Add(processor.Create(OpCodes.Ldloc, methodParamsVarDefinition));
+                                            //    beforeInstructions.Add(processor.Create(OpCodes.Ldc_I4, methodParam.Index));
+                                            //    beforeInstructions.Add(processor.Create(OpCodes.Ldstr, methodParam.Name));
+                                            //    beforeInstructions.Add(processor.Create(OpCodes.Ldarg, methodParam));
+                                            //    if (methodParam.ParameterType.IsValueType || methodParam.ParameterType.IsGenericParameter)
+                                            //    {
+                                            //        beforeInstructions.Add(processor.Create(OpCodes.Box, methodParam.ParameterType));
+                                            //    }
+                                            //    beforeInstructions.Add(processor.Create(OpCodes.Newobj, method.Module.ImportReference(typeof(ParamInfo).GetConstructors().First())));
+                                            //    beforeInstructions.Add(processor.Create(OpCodes.Stelem_Ref));
+                                            //}
+
+                                            //beforeInstructions.Add(processor.Create(OpCodes.Ldloc, methodParamsVarDefinition));
+
+                                            beforeInstructions.Add(processor.Create(OpCodes.Ldnull));
                                         }
                                         else
                                         {
                                             beforeInstructions.Add(processor.Create(OpCodes.Ldnull));
                                         }
 
-                                        beforeInstructions.Add(processor.Create(OpCodes.Callvirt, method.Module.ImportReference(typeof(Interception.IInterceptor).GetMethod("OnBefore"))));
+                                        beforeInstructions.Add(processor.Create(OpCodes.Callvirt, module.ImportReference(i_interceptor_type.GetMethods().First(m => m.Name == "OnBefore"))));
 
                                         beforeInstructions.Reverse();
 
@@ -175,13 +188,72 @@ namespace ReportPortal.Extensions.Insider.Task
                                         // inner try
                                         var handlerInstructions = new List<Instruction>();
                                         // Exception exp
-                                        var exceptionType = module.ImportReference(typeof(Exception));
+
+                                        TypeDefinition expTypeDefinition;
+                                        TypeReference extTypeReference = null;
+
+                                        bool exceptionTypeResolved = false;
+
+                                        var netstandard = module.AssemblyReferences.FirstOrDefault(a => a.Name == "netstandard");
+                                        var systemRuntimeRef = module.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Runtime");
+                                        var msCorLib = module.AssemblyReferences.FirstOrDefault(a => a.Name == "mscorlib");
+                                        // full net framework
+                                        if (msCorLib != null)
+                                        {
+                                            var msCorLibDef = module.AssemblyResolver.Resolve(msCorLib);
+                                            expTypeDefinition = msCorLibDef.MainModule.GetType("System.Exception");
+                                            extTypeReference = module.ImportReference(expTypeDefinition);
+
+                                            exceptionTypeResolved = true;
+                                        }
+
+                                        // net core app
+                                        if (!exceptionTypeResolved && systemRuntimeRef != null)
+                                        {
+                                            var systemRuntimeDef = module.AssemblyResolver.Resolve(systemRuntimeRef);
+
+                                            var privateCoreLib = systemRuntimeDef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
+
+                                            if (privateCoreLib == null) break;
+
+                                            var privateCoreLibDef = module.AssemblyResolver.Resolve(privateCoreLib);
+
+                                            expTypeDefinition = privateCoreLibDef.MainModule.GetType("System.Exception");
+                                            extTypeReference = module.ImportReference(expTypeDefinition);
+
+                                            exceptionTypeResolved = true;
+                                        }
+
+                                        // netstandard library
+                                        if (!exceptionTypeResolved && netstandard != null)
+                                        {
+                                            var netstandardRef = module.AssemblyResolver.Resolve(netstandard);
+                                            systemRuntimeRef = netstandardRef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Runtime");
+                                            if (systemRuntimeRef == null) break;
+                                            var systemRuntimeDef = module.AssemblyResolver.Resolve(systemRuntimeRef);
+                                            var privateCoreLib = systemRuntimeDef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
+                                            if (privateCoreLib == null) break;
+                                            var privateCoreLibDef = module.AssemblyResolver.Resolve(privateCoreLib);
+
+                                            expTypeDefinition = privateCoreLibDef.MainModule.GetType("System.Exception");
+                                            extTypeReference = module.ImportReference(expTypeDefinition);
+
+                                            exceptionTypeResolved = true;
+                                        }
+
+                                        if (!exceptionTypeResolved)
+                                        {
+                                            throw new Exception("Unable to determine app runtime.");
+                                        }
+
+
+                                        var exceptionType = extTypeReference;
                                         var expVar = new VariableDefinition(exceptionType);
                                         method.Body.Variables.Add(expVar);
                                         handlerInstructions.Add(processor.Create(OpCodes.Stloc, expVar));
                                         handlerInstructions.Add(processor.Create(OpCodes.Ldloc, varDef));
                                         handlerInstructions.Add(processor.Create(OpCodes.Ldloc, expVar));
-                                        handlerInstructions.Add(processor.Create(OpCodes.Callvirt, method.Module.ImportReference(typeof(Interception.IInterceptor).GetMethod("OnException"))));
+                                        handlerInstructions.Add(processor.Create(OpCodes.Callvirt, module.ImportReference(i_interceptor_type.GetMethods().First(m => m.Name == "OnException"))));
                                         handlerInstructions.Add(processor.Create(OpCodes.Rethrow));
 
                                         foreach (var instruction in handlerInstructions)
@@ -195,16 +267,17 @@ namespace ReportPortal.Extensions.Insider.Task
                                         if (retValueDef != null)
                                         {
                                             finallyInstructions.Add(processor.Create(OpCodes.Ldloc, retValueDef));
-                                            if (retValueDef.VariableType.IsValueType)
+                                            if (retValueDef.VariableType.IsValueType || retValueDef.VariableType.IsGenericParameter)
                                             {
                                                 finallyInstructions.Add(processor.Create(OpCodes.Box, retValueDef.VariableType));
                                             }
-                                            finallyInstructions.Add(processor.Create(OpCodes.Callvirt, method.Module.ImportReference(typeof(Interception.IInterceptor).GetMethod(nameof(Interception.IInterceptor.OnAfter), new Type[] { typeof(object) }))));
+
+                                            finallyInstructions.Add(processor.Create(OpCodes.Callvirt, module.ImportReference(i_interceptor_type.GetMethods().First(m => m.Name == "OnAfter" && m.HasParameters))));
                                         }
                                         else
                                         {
                                             //finallyInstructions.Add(processor.Create(OpCodes.Ldnull));
-                                            finallyInstructions.Add(processor.Create(OpCodes.Callvirt, method.Module.ImportReference(typeof(Interception.IInterceptor).GetMethod(nameof(Interception.IInterceptor.OnAfter), new Type[] { }))));
+                                            finallyInstructions.Add(processor.Create(OpCodes.Callvirt, module.ImportReference(i_interceptor_type.GetMethods().First(m => m.Name == "OnAfter" && !m.HasParameters))));
                                         }
 
 
@@ -249,7 +322,7 @@ namespace ReportPortal.Extensions.Insider.Task
                                         {
                                             TryStart = firstUserInstruction,
                                             TryEnd = handlerInstructions.First(),
-                                            CatchType = module.ImportReference(typeof(Exception)),
+                                            CatchType = extTypeReference,
                                             HandlerStart = handlerInstructions.First(),
                                             HandlerEnd = handlerInstructions.Last().Next
                                         };
@@ -267,11 +340,22 @@ namespace ReportPortal.Extensions.Insider.Task
 
 
                                         method.Body.OptimizeMacros();
+
+                                        if (true)
+                                        {
+                                            var msssss = module.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
+                                            if (msssss != null)
+                                            {
+                                                //module.AssemblyReferences.Remove(msssss);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
+
                 }
 
                 var writerParameters = new AssemblyWriterParametersFactory().CreateWriterParameters(_assemblyPath);

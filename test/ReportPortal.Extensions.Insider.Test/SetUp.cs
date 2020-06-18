@@ -12,11 +12,22 @@ namespace ReportPortal.Extensions.Insider.Test
         [OneTimeSetUp]
         public static void SetUpMethod()
         {
-            var assemblyToInstrument = Environment.CurrentDirectory + "/ReportPortal.Extensions.Insider.Test.Internal.dll";
+            var assemblyToInstrument = TestContext.CurrentContext.TestDirectory + "/ReportPortal.Extensions.Insider.Test.Internal.NetStandard.dll";
 
             var instrumentator = new Task.AssemblyInstrumentator(assemblyToInstrument);
 
             instrumentator.Instrument();
+
+            var filePath = TestContext.CurrentContext.TestDirectory + "/ReportPortal.Extensions.Insider.Test.Internal.NetCoreApp.dll";
+            if (File.Exists(filePath))
+            {
+                var assemblyToAppCoreInstrument = filePath;
+                var instrumentator2 = new Task.AssemblyInstrumentator(assemblyToAppCoreInstrument);
+
+                instrumentator2.Instrument();
+            }
+
+            
         }
     }
 }

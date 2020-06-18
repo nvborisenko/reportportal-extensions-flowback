@@ -10,9 +10,13 @@ namespace ReportPortal.Extensions.Insider.Task
     {
         public ReaderParameters CreateReaderParameters(string assemblyPath)
         {
+            var resolver = new AssResolver();
+            resolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
+
             var readerParameters = new ReaderParameters()
             {
-                ReadWrite = true
+                ReadWrite = true,
+                AssemblyResolver = resolver
             };
 
             var dirPath = Path.GetDirectoryName(assemblyPath);
@@ -23,6 +27,14 @@ namespace ReportPortal.Extensions.Insider.Task
             }
 
             return readerParameters;
+        }
+    }
+
+    class AssResolver : DefaultAssemblyResolver
+    {
+        public override AssemblyDefinition Resolve(AssemblyNameReference name)
+        {
+            return base.Resolve(name);
         }
     }
 }

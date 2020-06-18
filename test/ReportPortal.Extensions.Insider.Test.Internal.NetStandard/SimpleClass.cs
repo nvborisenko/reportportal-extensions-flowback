@@ -41,11 +41,9 @@ namespace ReportPortal.Extensions.Insider.Test.Internal
 
         public void SimpleMethodWithParams(string a, int b, object c)
         {
-            var aaa = new OrderedDictionary();
-
-            aaa["a"] = a;
-            aaa["b"] = b;
-            //var arr = new object[] { a, b, c };
+            var array = new ParamInfo[5];
+            array[0] = new ParamInfo("a", a);
+            array[2] = new ParamInfo("b", b);
         }
 
         [Insider("a")]
@@ -126,8 +124,6 @@ namespace ReportPortal.Extensions.Insider.Test.Internal
 
         public async Task<int> SimpleSumAsyncMethod(int a, int b, Type type)
         {
-            await Task.Delay(1000);
-            await Task.Delay(2000);
             using (var scope = Shared.Log.BeginScope("qwe"))
             {
 

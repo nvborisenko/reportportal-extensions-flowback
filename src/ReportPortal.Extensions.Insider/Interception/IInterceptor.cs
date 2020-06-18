@@ -7,7 +7,7 @@ namespace ReportPortal.Extensions.Insider.Interception
 {
     public interface IInterceptor
     {
-        void OnBefore(string name, IOrderedDictionary parameters);
+        void OnBefore(string name, ParamInfo[] parameters);
 
         void OnException(Exception exp);
 

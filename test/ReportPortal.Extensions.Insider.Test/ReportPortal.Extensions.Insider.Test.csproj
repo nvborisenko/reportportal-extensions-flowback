@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>net472;netcoreapp3.1;</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -21,7 +21,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReportPortal.Extensions.Insider.Task\ReportPortal.Extensions.Insider.Task.csproj" />
-    <ProjectReference Include="..\ReportPortal.Extensions.Insider.Test.Internal\ReportPortal.Extensions.Insider.Test.Internal.csproj" />
+    <ProjectReference Include="..\ReportPortal.Extensions.Insider.Test.Internal.NetStandard\ReportPortal.Extensions.Insider.Test.Internal.NetStandard.csproj" />
   </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework) == 'netcoreapp3.1'" >
+    <ProjectReference Include="..\ReportPortal.Extensions.Insider.Test.Internal.NetCoreApp\ReportPortal.Extensions.Insider.Test.Internal.NetCoreApp.csproj" />
+  </ItemGroup>
+    
+  
 
 </Project>

@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using ReportPortal.Extensions.Insider.Test.Internal;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ReportPortal.Extensions.Insider.Test
