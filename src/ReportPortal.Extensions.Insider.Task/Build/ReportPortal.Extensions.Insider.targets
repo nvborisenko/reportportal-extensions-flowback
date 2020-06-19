@@ -9,7 +9,10 @@
   <UsingTask TaskName="ReportPortal.Extensions.Insider.Task.InsiderTask" AssemblyFile="$(MSBuildThisFileDirectory)..\tasks\$(_InsiderRuntime)\ReportPortal.Extensions.Insider.Task.dll" />
 
   <Target Name="InsiderInstrumentalTask" AfterTargets="Build">
-    <InsiderTask TargetAssemblyPath="$(TargetPath)" />
+    <!--<InsiderTask TargetAssemblyPath="$(TargetPath)" />-->
+    <Exec Command="dotnet ReportPortal.Extensions.Insider.Task.dll" WorkingDirectory="$(MSBuildThisFileDirectory)..\tasks" ConsoleToMSBuild="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
+    </Exec>
   </Target>
 
 </Project>
