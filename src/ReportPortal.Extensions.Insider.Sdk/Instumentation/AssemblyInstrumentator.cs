@@ -1,5 +1,4 @@
-﻿using Microsoft.Build.Utilities;
-using Mono.Cecil;
+﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using System;
@@ -8,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace ReportPortal.Extensions.Insider.Task
+namespace ReportPortal.Extensions.Insider.Sdk.Instrumentation
 {
     public class AssemblyInstrumentator
     {
@@ -30,6 +29,28 @@ namespace ReportPortal.Extensions.Insider.Task
             {
                 foreach (var module in assemblyDef.Modules)
                 {
+                    var netstandard = module.AssemblyReferences.FirstOrDefault(a => a.Name == "netstandard");
+                    var systemRuntimeRef = module.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Runtime");
+                    var msCorLib = module.AssemblyReferences.FirstOrDefault(a => a.Name == "mscorlib");
+
+                    AssemblyDefinition mmmm = null;
+                    if (netstandard != null)
+                    {
+                        mmmm = module.AssemblyResolver.Resolve(netstandard);
+                    } else if (msCorLib != null)
+                    {
+                        mmmm = module.AssemblyResolver.Resolve(msCorLib);
+                    } else if (systemRuntimeRef != null)
+                    {
+                        mmmm = module.AssemblyResolver.Resolve(systemRuntimeRef);
+                    }
+                    var exceptionTypeRef = new TypeReference("System", "Exception", mmmm.MainModule, mmmm.MainModule);
+
+                    var b = module.ImportReference(exceptionTypeRef);
+
+
+
+
                     var allTypes = new List<TypeDefinition>();
 
                     foreach (var type in module.Types)
@@ -194,61 +215,62 @@ namespace ReportPortal.Extensions.Insider.Task
 
                                         bool exceptionTypeResolved = false;
 
-                                        var netstandard = module.AssemblyReferences.FirstOrDefault(a => a.Name == "netstandard");
-                                        var systemRuntimeRef = module.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Runtime");
-                                        var msCorLib = module.AssemblyReferences.FirstOrDefault(a => a.Name == "mscorlib");
-                                        // full net framework
-                                        if (msCorLib != null)
-                                        {
-                                            var msCorLibDef = module.AssemblyResolver.Resolve(msCorLib);
-                                            expTypeDefinition = msCorLibDef.MainModule.GetType("System.Exception");
-                                            extTypeReference = module.ImportReference(expTypeDefinition);
+                                        //var netstandard = module.AssemblyReferences.FirstOrDefault(a => a.Name == "netstandard");
+                                        //var systemRuntimeRef = module.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Runtime");
+                                        //var msCorLib = module.AssemblyReferences.FirstOrDefault(a => a.Name == "mscorlib");
+                                        //// full net framework
+                                        //if (msCorLib != null)
+                                        //{
+                                        //    var msCorLibDef = module.AssemblyResolver.Resolve(msCorLib);
+                                        //    expTypeDefinition = msCorLibDef.MainModule.GetType("System.Exception");
+                                        //    extTypeReference = module.ImportReference(expTypeDefinition);
 
-                                            exceptionTypeResolved = true;
-                                        }
+                                        //    exceptionTypeResolved = true;
+                                        //}
 
-                                        // net core app
-                                        if (!exceptionTypeResolved && systemRuntimeRef != null)
-                                        {
-                                            var systemRuntimeDef = module.AssemblyResolver.Resolve(systemRuntimeRef);
+                                        //// net core app
+                                        //if (!exceptionTypeResolved && systemRuntimeRef != null)
+                                        //{
+                                        //    var systemRuntimeDef = module.AssemblyResolver.Resolve(systemRuntimeRef);
 
-                                            var privateCoreLib = systemRuntimeDef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
+                                        //    var privateCoreLib = systemRuntimeDef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
 
-                                            if (privateCoreLib == null) break;
+                                        //    if (privateCoreLib == null) break;
 
-                                            var privateCoreLibDef = module.AssemblyResolver.Resolve(privateCoreLib);
+                                        //    var privateCoreLibDef = module.AssemblyResolver.Resolve(privateCoreLib);
 
-                                            expTypeDefinition = privateCoreLibDef.MainModule.GetType("System.Exception");
-                                            extTypeReference = module.ImportReference(expTypeDefinition);
+                                        //    expTypeDefinition = privateCoreLibDef.MainModule.GetType("System.Exception");
+                                        //    extTypeReference = module.ImportReference(expTypeDefinition);
 
-                                            exceptionTypeResolved = true;
-                                        }
+                                        //    exceptionTypeResolved = true;
+                                        //}
 
-                                        // netstandard library
-                                        if (!exceptionTypeResolved && netstandard != null)
-                                        {
-                                            var netstandardRef = module.AssemblyResolver.Resolve(netstandard);
-                                            systemRuntimeRef = netstandardRef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Runtime");
-                                            if (systemRuntimeRef == null) break;
-                                            var systemRuntimeDef = module.AssemblyResolver.Resolve(systemRuntimeRef);
-                                            var privateCoreLib = systemRuntimeDef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
-                                            if (privateCoreLib == null) break;
-                                            var privateCoreLibDef = module.AssemblyResolver.Resolve(privateCoreLib);
+                                        //// netstandard library
+                                        //if (!exceptionTypeResolved && netstandard != null)
+                                        //{
+                                        //    var netstandardRef = module.AssemblyResolver.Resolve(netstandard);
+                                        //    systemRuntimeRef = netstandardRef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Runtime");
+                                        //    if (systemRuntimeRef == null) break;
+                                        //    var systemRuntimeDef = module.AssemblyResolver.Resolve(systemRuntimeRef);
+                                        //    var privateCoreLib = systemRuntimeDef.MainModule.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
+                                        //    if (privateCoreLib == null) break;
+                                        //    var privateCoreLibDef = module.AssemblyResolver.Resolve(privateCoreLib);
 
-                                            expTypeDefinition = privateCoreLibDef.MainModule.GetType("System.Exception");
-                                            extTypeReference = module.ImportReference(expTypeDefinition);
+                                        //    expTypeDefinition = privateCoreLibDef.MainModule.GetType("System.Exception");
+                                        //    extTypeReference = module.ImportReference(expTypeDefinition);
 
-                                            exceptionTypeResolved = true;
-                                        }
+                                        //    exceptionTypeResolved = true;
+                                        //}
 
-                                        if (!exceptionTypeResolved)
-                                        {
-                                            throw new Exception("Unable to determine app runtime.");
-                                        }
+                                        //if (!exceptionTypeResolved)
+                                        //{
+                                        //    throw new Exception("Unable to determine app runtime.");
+                                        //}
 
 
-                                        var exceptionType = extTypeReference;
-                                        var expVar = new VariableDefinition(exceptionType);
+
+                                        //var exceptionTypeRef = module.ImportReference(typeof(Exception));
+                                        var expVar = new VariableDefinition(b);
                                         method.Body.Variables.Add(expVar);
                                         handlerInstructions.Add(processor.Create(OpCodes.Stloc, expVar));
                                         handlerInstructions.Add(processor.Create(OpCodes.Ldloc, varDef));
@@ -322,7 +344,7 @@ namespace ReportPortal.Extensions.Insider.Task
                                         {
                                             TryStart = firstUserInstruction,
                                             TryEnd = handlerInstructions.First(),
-                                            CatchType = extTypeReference,
+                                            CatchType = b,
                                             HandlerStart = handlerInstructions.First(),
                                             HandlerEnd = handlerInstructions.Last().Next
                                         };
@@ -346,7 +368,7 @@ namespace ReportPortal.Extensions.Insider.Task
                                             var msssss = module.AssemblyReferences.FirstOrDefault(a => a.Name == "System.Private.CoreLib");
                                             if (msssss != null)
                                             {
-                                                //module.AssemblyReferences.Remove(msssss);
+                                                module.AssemblyReferences.Remove(msssss);
                                             }
                                         }
                                     }

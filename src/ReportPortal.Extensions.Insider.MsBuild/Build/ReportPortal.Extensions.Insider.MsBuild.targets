@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_InsiderRuntime Condition=" $(MSBuildRuntimeType) == 'Full' ">net472</_InsiderRuntime>
+    <_InsiderRuntime Condition=" $(MSBuildRuntimeType) == 'Core' ">netstandard2.0</_InsiderRuntime>
+  </PropertyGroup>
+  
+  <UsingTask TaskName="ReportPortal.Extensions.Insider.MsBuild.InsiderTask" AssemblyFile="$(MSBuildThisFileDirectory)..\task\$(_InsiderRuntime)\ReportPortal.Extensions.Insider.MsBuild.dll" />
+
+  <Target Name="InsiderInstrumentalTask" AfterTargets="Build">
+    <InsiderTask TargetAssemblyPath="$(TargetPath)" />
+  </Target>
+
+</Project>

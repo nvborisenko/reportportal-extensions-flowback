@@ -20,11 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReportPortal.Extensions.Insider.Task\ReportPortal.Extensions.Insider.Task.csproj" />
+    <ProjectReference Include="..\..\src\ReportPortal.Extensions.Insider.Task\ReportPortal.Extensions.Insider.Tool.csproj" />
     <ProjectReference Include="..\ReportPortal.Extensions.Insider.Test.Internal.NetStandard\ReportPortal.Extensions.Insider.Test.Internal.NetStandard.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework) == 'netcoreapp3.1'" >
+  <ItemGroup Condition="$(TargetFramework) == 'netcoreapp3.1'">
     <ProjectReference Include="..\ReportPortal.Extensions.Insider.Test.Internal.NetCoreApp\ReportPortal.Extensions.Insider.Test.Internal.NetCoreApp.csproj" />
   </ItemGroup>
     

@@ -1,8 +1,9 @@
-﻿using System;
+﻿using ReportPortal.Extensions.Insider.Sdk.Instrumentation;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ReportPortal.Extensions.Insider.Task
+namespace ReportPortal.Extensions.Insider.MsBuild
 {
     public class InsiderTask : Microsoft.Build.Utilities.Task
     {

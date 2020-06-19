@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.6.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReportPortal.Extensions.Insider.Sdk\ReportPortal.Extensions.Insider.Sdk.csproj" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Build\**" Pack="true" PackagePath="build" />
+  </ItemGroup>
+  
+  <Target Name="IncludeOutput" AfterTargets="Build">
+    <ItemGroup>
+      <None Include="$(OutputPath)\" Pack="true" PackagePath="task\$(TargetFramework)" Visible="false" />
+    </ItemGroup>
+  </Target>
+  
+</Project>
