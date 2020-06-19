@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8D7BBB95-7B1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReportPortal.Extensions.Insider", "src\ReportPortal.Extensions.Insider\ReportPortal.Extensions.Insider.csproj", "{8B1B17CF-ACB2-42BC-B0B5-A2864D05B8E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReportPortal.Extensions.Insider.Tool", "src\ReportPortal.Extensions.Insider.Task\ReportPortal.Extensions.Insider.Tool.csproj", "{919238C6-D099-4EAA-B7D1-A741D8870766}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{017C3467-08D9-46A0-9584-1ECF91B5688A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReportPortal.Extensions.Insider.Test", "test\ReportPortal.Extensions.Insider.Test\ReportPortal.Extensions.Insider.Test.csproj", "{F9769B84-9E46-434E-82B9-256E7FAD1F15}"
@@ -17,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReportPortal.Extensions.Ins
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReportPortal.Extensions.Insider.Test.Internal.NetStandard", "test\ReportPortal.Extensions.Insider.Test.Internal.NetStandard\ReportPortal.Extensions.Insider.Test.Internal.NetStandard.csproj", "{695FED46-DEC7-40AA-9DB6-299ED1931612}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportPortal.Extensions.Insider.MsBuild", "src\ReportPortal.Extensions.Insider.MsBuild\ReportPortal.Extensions.Insider.MsBuild.csproj", "{104806F3-FB2C-47DD-978A-FDF60AD8AF2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReportPortal.Extensions.Insider.MsBuild", "src\ReportPortal.Extensions.Insider.MsBuild\ReportPortal.Extensions.Insider.MsBuild.csproj", "{104806F3-FB2C-47DD-978A-FDF60AD8AF2B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReportPortal.Extensions.Insider.Sdk", "src\ReportPortal.Extensions.Insider.Sdk\ReportPortal.Extensions.Insider.Sdk.csproj", "{244FFE18-FEF0-4810-B927-687E6AE1B360}"
 EndProject
@@ -31,10 +29,6 @@ Global
 		{8B1B17CF-ACB2-42BC-B0B5-A2864D05B8E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B1B17CF-ACB2-42BC-B0B5-A2864D05B8E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B1B17CF-ACB2-42BC-B0B5-A2864D05B8E0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{919238C6-D099-4EAA-B7D1-A741D8870766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{919238C6-D099-4EAA-B7D1-A741D8870766}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{919238C6-D099-4EAA-B7D1-A741D8870766}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{919238C6-D099-4EAA-B7D1-A741D8870766}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F9769B84-9E46-434E-82B9-256E7FAD1F15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F9769B84-9E46-434E-82B9-256E7FAD1F15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9769B84-9E46-434E-82B9-256E7FAD1F15}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -61,7 +55,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8B1B17CF-ACB2-42BC-B0B5-A2864D05B8E0} = {8D7BBB95-7B19-4CF9-BCFB-A968C18C1806}
-		{919238C6-D099-4EAA-B7D1-A741D8870766} = {8D7BBB95-7B19-4CF9-BCFB-A968C18C1806}
 		{F9769B84-9E46-434E-82B9-256E7FAD1F15} = {017C3467-08D9-46A0-9584-1ECF91B5688A}
 		{FAA7D394-714F-44F0-BF32-D57EE1B39BAE} = {017C3467-08D9-46A0-9584-1ECF91B5688A}
 		{695FED46-DEC7-40AA-9DB6-299ED1931612} = {017C3467-08D9-46A0-9584-1ECF91B5688A}

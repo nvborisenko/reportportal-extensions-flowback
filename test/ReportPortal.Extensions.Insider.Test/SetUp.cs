@@ -14,7 +14,7 @@ namespace ReportPortal.Extensions.Insider.Test
         {
             var assemblyToInstrument = TestContext.CurrentContext.TestDirectory + "/ReportPortal.Extensions.Insider.Test.Internal.NetStandard.dll";
 
-            var instrumentator = new Task.AssemblyInstrumentator(assemblyToInstrument);
+            var instrumentator = new Sdk.Instrumentation.AssemblyInstrumentator(assemblyToInstrument);
 
             instrumentator.Instrument();
 
@@ -22,7 +22,7 @@ namespace ReportPortal.Extensions.Insider.Test
             if (File.Exists(filePath))
             {
                 var assemblyToAppCoreInstrument = filePath;
-                var instrumentator2 = new Task.AssemblyInstrumentator(assemblyToAppCoreInstrument);
+                var instrumentator2 = new Sdk.Instrumentation.AssemblyInstrumentator(assemblyToAppCoreInstrument);
 
                 instrumentator2.Instrument();
             }
